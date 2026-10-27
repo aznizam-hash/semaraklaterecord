@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f2937">
+  <title>Rekod Lewat SEMARAK</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111827;
+      --muted: #6b7280;
+      --accent: #1f2937;
+      --border: #d1d5db;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #111827;
+        --fg: #f9fafb;
+        --muted: #9ca3af;
+        --accent: #e5e7eb;
+        --border: #374151;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #111827;
+      --fg: #f9fafb;
+      --muted: #9ca3af;
+      --accent: #e5e7eb;
+      --border: #374151;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+    }
+    main { max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; margin: 0 0 4px; }
+    p.hint { color: var(--muted); margin: 0 0 16px; font-size: 0.9rem; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, select, button {
+      width: 100%;
+      min-height: 44px;
+      font: inherit;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    button {
+      margin-top: 20px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #status { margin-top: 16px; min-height: 1.5em; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Rekod Pelajar Lewat</h1>
+    <p class="hint">Isi maklumat pelajar yang tiba lewat di pintu pagar.</p>
+
+    <form id="lateForm" autocomplete="off">
+      <label for="regNo">No pendaftaran</label>
+      <input id="regNo" name="regNo" inputmode="text" required maxlength="20">
+
+      <label for="tingkatan">Tingkatan</label>
+      <select id="tingkatan" name="tingkatan" required>
+        <option value="">Pilih tingkatan</option>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+      </select>
+
+      <label for="kelas">Nama kelas</label>
+      <input id="kelas" name="kelas" required maxlength="20">
+
+      <button type="submit" id="submitBtn">Simpan rekod</button>
+    </form>
+
+    <div id="status" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    // URL Apps Script Web App. Tetapkan selepas deploy.
+    // Jangan commit URL sebenar jika ada kebimbangan akses.
+    var API_URL = '';
+
+    var form = document.getElementById('lateForm');
+    var statusEl = document.getElementById('status');
+    var submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!API_URL) {
+        statusEl.textContent = 'Sambungan ke pelayan belum dikonfigurasi.';
+        return;
+      }
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Menyimpan...';
+
+      var payload = {
+        action: 'recordLate',
+        regNo: form.regNo.value.trim(),
+        tingkatan: form.tingkatan.value,
+        kelas: form.kelas.value.trim()
+      };
+
+      // Guna text/plain supaya tiada preflight CORS untuk Apps Script.
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          if (json.ok) {
+            statusEl.textContent = 'Rekod disimpan.';
+            form.reset();
+          } else {
+            statusEl.textContent = json.error || 'Gagal menyimpan.';
+          }
+        })
+        .catch(function () {
+          statusEl.textContent = 'Tiada sambungan. Cuba semula.';
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
+        });
+    });
+  </script>
+</body>
+</html>
