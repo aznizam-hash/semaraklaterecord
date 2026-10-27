@@ -1,0 +1,11 @@
+{
+  "name": "Rekod Lewat SEMARAK",
+  "short_name": "Lewat SEMARAK",
+  "description": "Rekod pelajar lewat di pintu pagar SMK Mengkarak",
+  "lang": "ms",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "icons": []
+}

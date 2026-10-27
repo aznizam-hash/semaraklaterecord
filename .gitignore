@@ -1,0 +1,8 @@
+# Clasp: scriptId sebenar tidak boleh masuk repo (CLAUDE.md, peraturan 6)
+apps-script/.clasp.json
+
+# OS dan editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
